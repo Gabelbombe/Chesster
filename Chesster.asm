@@ -1,4 +1,4 @@
-w equ word                ; 16-bit prettifying helper,Chesslin v1.0 in 2016
+w equ word                ; 16-bit prettifying helper,Chesster v1.0 in 2016
 d equ dword               ; 32-bit prettifying helper,fasm assembler syntax
   org 100h                ; binary ip execution seg start address above psp
   pusha                   ; para down stack and avoid input buff collisions
@@ -17,3 +17,7 @@ a:mov eax,52364325h
   mov [di+6fh],al
   sub cl,3
   loop a
+
+  b:mov si,0fffbh
+    push si
+    mov cx,4

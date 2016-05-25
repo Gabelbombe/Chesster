@@ -1,4 +1,4 @@
-# Chesster: An ASM based minimalistic 256b chess game
+# Chesster: An ASM minimalist 256b chess game
 
 ##### "You don't need eyes to see, you need vision." - Faithless
 

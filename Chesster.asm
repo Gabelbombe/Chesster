@@ -63,3 +63,14 @@ j:cbw                     ; zero accumulator msb to set funct get keystroke
   loop j                  ; all file-first algebraic ascii quartet inputed?
   call n                  ; else verify algebraic ascii move is legal chess
   jc i                    ; if not then proceed to ask user input move anew
+
+k:call l                  ; converts algebraic notation buffer ascii source
+  push w b                ; redirect second fall-through return to printout
+
+l:lodsw                   ; algebraic notation buffer ascii source then dst
+  sub ax,3161h            ; convert to zero-based alphanumerical 3161h="a1"
+  aad 16                  ; convert to x88 board representation (al+=ah*16)
+  mov di,ax               ; add x88 chess board representation memory start
+  test cl,cl              ; verify caller's asked mode is passive or active
+  jnz m                   ; call asked mode mutex is passive so skip writes
+  xchg [di],ch            ; call asked mode mutex is active so write board!

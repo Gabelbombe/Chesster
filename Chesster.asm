@@ -22,14 +22,14 @@ b:mov si,0fffbh           ; point source index to algebraic notation buffer
   push si                 ; shorter save of algebraic notation buffer start
   mov cx,4                ; print dword ascii algebraic notation buffer str
 
-c:lodsb
-  int 29h
-  loop c
-  xor dl,8
-  pop di
-  jnz h
-  fldz
-  fbstp [di-6]
+c:lodsb                   ; get one of four usr/cpu bytes from ascii buffer
+  int 29h                 ; dos api fast console out display char al=[di++]
+  loop c                  ; continue until ascii file-first pair chars left
+  xor dl,8                ; alternate active player turn Black=0 or White=8
+  pop di                  ; shorter restore algebraic notation buffer start
+  jnz h                   ; if active player turn is White then do keyboard
+  fldz                    ; else Black active player turn fpu load +0.0 cst
+  fbstp [di-6]            ; and store back 80-bit packed bcd decimal number
 
 e:mov si,0fff5h
   lodsw

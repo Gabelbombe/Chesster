@@ -13,9 +13,9 @@ This is a sizecoding / code gulf exercise to code a playable chess engine in 256
 3
 4
 5
-6 
+6
 7  P P P P P P P P
 8  R N B Q K B N R
 ```
 
-So in order to test Chesster one can uudecode below binaries to input first algebraic notation "h7h6" characters starting game by moving the White pawn on H file from seventh rank to sixth rank. A longer example string sequence of gameplay is "h7h6h2h3g8f6h3h4f6g4h4h5g4h2g1h3h2f1h3g5".
+So in order to test Chesster one can uudecode below binaries to input first algebraic notation "h7h6" characters starting game by moving the White pawn on H file from seventh rank to sixth rank. A longer example string sequence of gameplay is __"h7h6h2h3g8f6h3h4f6g4h4h5g4h2g1h3h2f1h3g5"__.

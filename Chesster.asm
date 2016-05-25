@@ -41,13 +41,25 @@ e:mov si,0fff5h           ; zeroed this,best score 0fff5h and coords 0fff7h
   fild d [di]             ; successful calculation thus load current coords
   fistp d [si]            ; successful calculation thus store highest coord
 
-f:inc d [di]
-  jnz e
-  mov cl,2
+f:inc d [di]              ; resume exploring exhaustive [0;0ffffh] interval
+  jnz e                   ; including subset ["1a1a";"8h8h"] until finished
+  mov cl,2                ; convert int32 to two file-first algebraic words
 
-g:lodsw
-  aam 16
-  add ax,2960h
-  stosw
-  loop g
-  jmp k
+g:lodsw                   ; get first int16 msw/lsw algebraic notation word
+  aam 16                  ; integer to expanded zero-based file/rank nibble
+  add ax,2960h            ; translate file/rank to ascii chess board origin
+  stosw                   ; write pair=half of the ascii move buffer string
+  loop g                  ; get next int16 msw/lsw words algebraic notation
+  jmp k                   ; and proceed examining ascii move buffer strings
+
+h:mov si,di               ; di points to 0fffbh for both input and verified
+
+i:mov di,si               ; resets every input to algebraic notation buffer
+  mov cl,4                ; one file-first algebraic notation is four bytes
+
+j:cbw                     ; zero accumulator msb to set funct get keystroke
+  int 16h                 ; al=dos bios keyboard services api blocking read
+  stosb                   ; src file=fffb;rank=fffc dst file=fffd;rank=fffe
+  loop j                  ; all file-first algebraic ascii quartet inputed?
+  call n                  ; else verify algebraic ascii move is legal chess
+  jc i                    ; if not then proceed to ask user input move anew

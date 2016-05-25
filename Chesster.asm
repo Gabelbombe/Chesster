@@ -74,3 +74,22 @@ l:lodsw                   ; algebraic notation buffer ascii source then dst
   test cl,cl              ; verify caller's asked mode is passive or active
   jnz m                   ; call asked mode mutex is passive so skip writes
   xchg [di],ch            ; call asked mode mutex is active so write board!
+
+m:and al,88h
+  ret
+
+n:pusha
+  mov si,0fffbh
+  mov cl,8
+  call x
+  jz u
+  xor dl,al
+  test dl,cl
+  jnz u
+  mov bx,di
+  mov dh,al
+  call x
+  jz o
+  xor dl,al
+  test dl,cl
+  jnz u

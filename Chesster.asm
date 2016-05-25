@@ -75,21 +75,68 @@ l:lodsw                   ; algebraic notation buffer ascii source then dst
   jnz m                   ; call asked mode mutex is passive so skip writes
   xchg [di],ch            ; call asked mode mutex is active so write board!
 
-m:and al,88h
-  ret
+m:and al,88h              ; test if inside main chess board x88 bitmask use
+  ret                     ; return to standard callers or printout redirect
 
-n:pusha
-  mov si,0fffbh
-  mov cl,8
-  call x
-  jz u
-  xor dl,al
-  test dl,cl
-  jnz u
-  mov bx,di
-  mov dh,al
-  call x
-  jz o
-  xor dl,al
-  test dl,cl
-  jnz u
+n:pusha                   ; save reg vals in: si=fff7h/fffbh di=fffbh/ffffh
+  mov si,0fffbh           ; point source index to current ascii move buffer
+  mov cl,8                ; set passive mode count mutex for only verifying
+  call x                  ; convert buffer ascii src pair to x88 memory add
+  jz u                    ; source is non-conforming : illegal empty square
+  xor dl,al               ; sets move conformitiy using active player color
+  test dl,cl              ; test move conformity using active player colour
+  jnz u                   ; source is non-conforming : opponent turn colour
+  mov bx,di               ; else if source conforming then save piece addr.
+  mov dh,al               ; else if source conforming then save piece value
+  call x                  ; convert buffer ascii dest to x88 memory address
+  jz o                    ; if move nature not an attack skip over captures
+  xor dl,al               ; sets move conformitiy using active player color
+  test dl,cl              ; test move conformity using active player colour
+  jnz u                   ; destination is non-conforming : same turn color
+
+o:sub di,bx               ; source & destination conforming so obtain delta
+  mov [0fff5h],al         ; save piece value as non-transactional potential
+  mov al,dh               ; restore previous saved move source piece nature
+  and al,7                ; normalize gray piece nature colorless isolation
+  test al,1               ; determine source piece's parity interval length
+  jz p                    ; piece face=piece nature=piece value=piece score
+  mov cl,4                ; override halfing default interval len if parity
+
+p:cmp al,1                ; test if moving piece is a special handling pawn
+  mov bx,y                ; piece memory address off-by-one index ret fixed
+  xlatb                   ; move piece original start offset memory address
+  xchg ax,di              ; offset becomes accumulator becomes displacement
+  jnz s                   ; leave if move source piece not special handling
+  test dh,8               ; else adjust move source pawn color displacement
+  jnz q                   ; no White pawn displacement sub-interval fixings
+  scasd                   ; displacement interval offset+=4 for black pawns
+
+q:test ch,ch              ; verify if pawn is attacking an opponent piece ?
+  mov cx,2                ; loop index clears msb placeholder also sets lsb
+  jnz s                   ; if non-empty square : pawn attacking diagonally
+  dec cx                  ; else decrease parity interval size special case
+
+r:scasw                   ; displacement interval start+=2 prunes attacking
+
+s:add di,bx               ; set displacement interval scanning start offset
+  repnz scasb             ; verify move exists in displacement sub-interval
+  jz v                    ; ZF set legal src piece displacement delta found
+  jmp u                   ; illegal src piece displacement: delta not found
+
+t:pop ax                  ; bail shotcircuits nested dataflow function call
+
+u:stc                     ; carry mutex persists indicating move is illegal
+
+v:popa                    ; persistant CF mutex is indicator to legal chess
+  ret                     ; restore move mode mutex cl=passive or cl=active
+
+x:call l                  ; verify this move legal within inside main board
+  jnz t                   ; exits for illegal move piece outside main board
+  cmpxchg [di],al         ; discriminate from special case zero return vals
+
+y:db 195,21,7,19,15,15,15 ; p[1]PF4,n[2]PF8,b[3]PF4,q[4]PF8,r[5]PF4,k[6]PF8
+
+z:db -33,-31,-18,-14,14   ; prev label is ret+1 parity displacement offsets
+  db 18,31,33,-16,16,-1,1 ; z array is displacement overlap interval values
+  db 15,17,-15,-17,-16    ; knight rook+8 bishop+12 pawns White+12 Black+18
+  db -32,15,17,16         ; queen and king moves are rook+bishop+pawn moves

@@ -31,12 +31,23 @@ c:lodsb                   ; get one of four usr/cpu bytes from ascii buffer
   fldz                    ; else Black active player turn fpu load +0.0 cst
   fbstp [di-6]            ; and store back 80-bit packed bcd decimal number
 
-e:mov si,0fff5h
-  lodsw
-  cmp al,ah
-  jc f
-  call n
-  jc f
-  mov [di-7],al
-  fild d [di]
-  fistp d [si]
+e:mov si,0fff5h           ; zeroed this,best score 0fff5h and coords 0fff7h
+  lodsw                   ; move lsb=potential capture vs. msb=best capture
+  cmp al,ah               ; compare this capture value against best capture
+  jc f                    ; prune calculations if capture already lower val
+  call n                  ; else verify the attack potential chess legality
+  jc f                    ; capture higher value but move was illegal chess
+  mov [di-7],al           ; successful calculation thus store newer highest
+  fild d [di]             ; successful calculation thus load current coords
+  fistp d [si]            ; successful calculation thus store highest coord
+
+f:inc d [di]
+  jnz e
+  mov cl,2
+
+g:lodsw
+  aam 16
+  add ax,2960h
+  stosw
+  loop g
+  jmp k

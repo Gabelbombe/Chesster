@@ -18,4 +18,8 @@ This is a sizecoding / code gulf exercise to code a playable chess engine in 256
 8  R N B Q K B N R
 ```
 
-So in order to test Chesster one can uudecode below binaries to input first algebraic notation "h7h6" characters starting game by moving the White pawn on H file from seventh rank to sixth rank. A longer example string sequence of gameplay is __"h7h6h2h3g8f6h3h4f6g4h4h5g4h2g1h3h2f1h3g5"__. Remember if your keyboard input is not legal chess then Chesster will silently expect you to enter _again_ a conforming four ascii character string just to proceed. Thus, if only a single faulty character was entered you will need to fill-in with three more "dummy" characters before re-typing a desired algebraic notation for validation only occurs every four-chars exactly. All bugs are ofc mine.
+So in order to test Chesster one can uudecode below binaries to input first algebraic notation "h7h6" characters starting game by moving the White pawn on H file from seventh rank to sixth rank. A longer example string sequence of gameplay is __"h7h6h2h3g8f6h3h4f6g4h4h5g4h2g1h3h2f1h3g5"__.
+
+## Note
+
+Remember if your keyboard input is not legal chess then Chesster will silently expect you to enter _again_ a conforming four ascii character string just to proceed. Thus, if only a single faulty character was entered you will need to fill-in with three more "dummy" characters before re-typing a desired algebraic notation for validation only occurs every four-chars exactly. All bugs are ofc mine.
